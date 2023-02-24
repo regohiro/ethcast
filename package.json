@@ -11,14 +11,15 @@
   "license": "MIT",
   "commands": [
     {
-      "name": "index",
-      "title": "Submit Form",
-      "description": "Template for submitting a form",
+      "name": "random-accounts",
+      "title": "Create Random Accounts",
+      "description": "Creates 10 accounts from a random seed phrase",
       "mode": "view"
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.48.3"
+    "@raycast/api": "^1.48.3",
+    "ethers": "^5.7.2"
   },
   "devDependencies": {
     "@types/node": "18.8.3",
