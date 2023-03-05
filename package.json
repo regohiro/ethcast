@@ -15,6 +15,12 @@
       "title": "Create Random Accounts",
       "description": "Creates 10 accounts from a random seed phrase",
       "mode": "view"
+    },
+    {
+      "name": "eth-constants",
+      "title": "Search Web3 Constants",
+      "description": "Commonly used web3 constants from ethers.js",
+      "mode": "view"
     }
   ],
   "preferences": [
