@@ -17,6 +17,16 @@
       "mode": "view"
     }
   ],
+  "preferences": [
+    {
+      "name": "accounts",
+      "description": "Number of accounts to generate from the mnemonic.",
+      "type": "textfield",
+      "required": false,
+      "title": "Number of accounts to generate",
+      "default": "10"
+    }
+  ],
   "dependencies": {
     "@raycast/api": "^1.48.3",
     "ethers": "^5.7.2"

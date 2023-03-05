@@ -1,18 +1,19 @@
-import { Action, ActionPanel, Icon, List } from "@raycast/api";
+import { Action, ActionPanel, Icon, List, getPreferenceValues } from "@raycast/api";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
+import { Perferences } from "./preferences";
 
 interface Account {
   address: string;
   privateKey: string;
 }
 
-const ACCOUNTS_TO_GENERATE = 10;
-
 export default function Command() {
+  const preferences = getPreferenceValues<Perferences>();
+
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [mnemonic, setMnemonic] = useState("");
-  const [accounts, setAccounts] = useState<Account[]>([]);
 
   useEffect(() => {
     const wallet = ethers.Wallet.createRandom();
@@ -20,7 +21,7 @@ export default function Command() {
     setMnemonic(mnemonic);
 
     const node = ethers.utils.HDNode.fromMnemonic(mnemonic);
-    for (let i = 0; i < ACCOUNTS_TO_GENERATE; i++) {
+    for (let i = 0; i < Number(preferences.accounts); i++) {
       const { address, privateKey } = node.derivePath("m/44'/60'/0'/0/" + i);
       setAccounts((prev) => [...prev, { address, privateKey }]);
     }
@@ -50,6 +51,7 @@ export default function Command() {
             actions={
               <ActionPanel>
                 <Action.CopyToClipboard content={address} />
+                <Action.Paste content={address} shortcut={{ modifiers: ["cmd"], key: "enter" }} />
               </ActionPanel>
             }
           />
@@ -60,6 +62,7 @@ export default function Command() {
             actions={
               <ActionPanel>
                 <Action.CopyToClipboard content={privateKey} />
+                <Action.Paste content={privateKey} shortcut={{ modifiers: ["cmd"], key: "enter" }} />
               </ActionPanel>
             }
           />
