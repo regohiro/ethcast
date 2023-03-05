@@ -3,7 +3,7 @@
   "name": "ethcast",
   "title": "ethcast",
   "description": "Useful tools for web3 developers",
-  "icon": "command-icon.png",
+  "icon": "extension-icon.png",
   "author": "regohiro",
   "categories": [
     "Developer Tools"
