@@ -38,6 +38,7 @@ export default function Command() {
         actions={
           <ActionPanel>
             <Action.CopyToClipboard content={mnemonic} />
+            <Action.Paste content={mnemonic} shortcut={{ modifiers: ["cmd"], key: "enter" }} />
           </ActionPanel>
         }
       />
