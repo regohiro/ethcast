@@ -1,6 +1,6 @@
 import { Action, ActionPanel, Icon, List, getPreferenceValues } from "@raycast/api";
 import { ethers } from "ethers";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Perferences } from "./preferences";
 
 interface Account {
@@ -11,26 +11,23 @@ interface Account {
 export default function Command() {
   const preferences = getPreferenceValues<Perferences>();
 
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [mnemonic, setMnemonic] = useState("");
-
-  useEffect(() => {
+  const { mnemonic, accounts } = useMemo(() => {
     const wallet = ethers.Wallet.createRandom();
     const mnemonic = wallet.mnemonic.phrase;
-    setMnemonic(mnemonic);
 
+    const accounts: Account[] = [];
+    const numOfAccounts = Number(preferences.accounts);
     const node = ethers.utils.HDNode.fromMnemonic(mnemonic);
-    for (let i = 0; i < Number(preferences.accounts); i++) {
+    for (let i = 0; i < numOfAccounts; i++) {
       const { address, privateKey } = node.derivePath("m/44'/60'/0'/0/" + i);
-      setAccounts((prev) => [...prev, { address, privateKey }]);
+      accounts.push({ address, privateKey });
     }
 
-    setIsLoading(false);
+    return { mnemonic, accounts };
   }, []);
 
   return (
-    <List isLoading={isLoading}>
+    <List isLoading={mnemonic === ""}>
       <List.Item
         title="Mnemonic"
         icon={Icon.Leaf}
