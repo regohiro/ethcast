@@ -1,7 +1,7 @@
 import { Action, ActionPanel, Icon, List, getPreferenceValues } from "@raycast/api";
 import { ethers } from "ethers";
 import { useMemo } from "react";
-import { Perferences } from "./preferences";
+import { Perferences } from "./common/preferences";
 
 interface Account {
   address: string;
