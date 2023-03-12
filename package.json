@@ -21,6 +21,12 @@
       "title": "Search Web3 Constants",
       "description": "Commonly used web3 constants from ethers.js",
       "mode": "view"
+    },
+    {
+      "name": "unit-converter",
+      "title": "Convert Ethereum Units",
+      "description": "A simple Ethereum unit converter inspired by eth-converter.com",
+      "mode": "view"
     }
   ],
   "preferences": [
@@ -35,6 +41,7 @@
   ],
   "dependencies": {
     "@raycast/api": "^1.48.3",
+    "bignumber.js": "^9.1.1",
     "ethers": "^5.7.2"
   },
   "devDependencies": {
