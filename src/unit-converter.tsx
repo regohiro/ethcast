@@ -2,47 +2,60 @@ import { Action, ActionPanel, Form } from "@raycast/api";
 import { useState } from "react";
 import BigNumber from "bignumber.js";
 
-const units = ["wei", "gwei", "ether"] as const;
-type Unit = (typeof units)[number];
+BigNumber.config({ DECIMAL_PLACES: 30 });
 
-const rawUnits: Record<Unit, string> = {
-  wei: "1",
-  gwei: "1000000000",
-  ether: "1000000000000000000",
-};
+interface Unit {
+  name: string;
+  unit: BigNumber; // unit relative to wei
+}
 
-const defaultValues: Record<Unit, string> = {
-  wei: "",
-  gwei: "",
-  ether: "",
-};
+const units: Unit[] = [
+  {
+    name: "wei",
+    unit: new BigNumber("1"),
+  },
+  {
+    name: "gwei",
+    unit: new BigNumber("1000000000"),
+  },
+  {
+    name: "satoshi",
+    unit: new BigNumber("10000000000"),
+  },
+  {
+    name: "micro",
+    unit: new BigNumber("1000000000000"),
+  },
+  {
+    name: "ether",
+    unit: new BigNumber("1000000000000000000"),
+  },
+];
 
 export default function Command() {
-  BigNumber.config({ DECIMAL_PLACES: 30 });
-
   const [clipboardValue, setClipboardValue] = useState("");
-  const [values, setValues] = useState(defaultValues);
+  const [values, setValues] = useState<Record<string, string>>({});
+
+  const onFocus = (e: Form.Event<string>) => {
+    if (e.target.value) {
+      setClipboardValue(e.target.value);
+    }
+  };
 
   const onChange = (src: Unit, value: string) => {
     if (isNumeric(value)) {
       const newValues = units.reduce(
         (acc, unit) => ({
           ...acc,
-          [unit]: convert(value, src, unit),
+          [unit.name]: convert(src, unit, value),
         }),
-        defaultValues
+        {}
       );
       setValues(newValues);
     } else if (value === "") {
-      setValues(defaultValues);
+      setValues({});
     } else {
-      setValues((values) => ({ ...values, [src]: value }));
-    }
-  };
-
-  const onFocus = (e: Form.Event<string>) => {
-    if (e.target.value) {
-      setClipboardValue(e.target.value);
+      setValues((values) => ({ ...values, [src.name]: value }));
     }
   };
 
@@ -51,15 +64,16 @@ export default function Command() {
     return regex.test(str);
   };
 
-  const convert = (value: string, from: Unit, to: Unit) => {
-    if (from == to) {
+  const convert = (from: Unit, to: Unit, value: string) => {
+    if (from.name === to.name) {
       return value;
     }
-    const fromUnit = new BigNumber(rawUnits[from]);
-    const toUnit = new BigNumber(rawUnits[to]);
-    const parsed = new BigNumber(value).times(fromUnit).integerValue().div(toUnit);
-    return parsed.toString(10);
+    const valueBN = new BigNumber(value);
+    const parsedBN = valueBN.times(from.unit).integerValue().div(to.unit);
+    return parsedBN.toString(10);
   };
+
+  const etherUnit = units.find((u) => u.name === "ether")!;
 
   return (
     <Form
@@ -71,10 +85,11 @@ export default function Command() {
     >
       {units.map((unit) => (
         <Form.TextField
-          id={unit}
-          key={unit}
-          title={unit.charAt(0).toUpperCase() + unit.slice(1)}
-          value={values[unit]}
+          id={unit.name}
+          key={unit.name}
+          title={unit.name.charAt(0).toUpperCase() + unit.name.slice(1)}
+          placeholder={convert(etherUnit, unit, "1")}
+          value={values[unit.name] || ""}
           onChange={(value) => onChange(unit, value)}
           onFocus={onFocus}
         />
