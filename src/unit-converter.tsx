@@ -6,10 +6,10 @@ BigNumber.config({ DECIMAL_PLACES: 30 });
 
 interface Unit {
   name: string;
-  unit: BigNumber; // unit relative to wei
+  unit: BigNumber;
 }
 
-const units: Unit[] = [
+const units: readonly Unit[] = [
   {
     name: "wei",
     unit: new BigNumber("1"),
@@ -30,7 +30,7 @@ const units: Unit[] = [
     name: "ether",
     unit: new BigNumber("1000000000000000000"),
   },
-];
+] as const;
 
 export default function Command() {
   const [clipboardValue, setClipboardValue] = useState("");
