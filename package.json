@@ -27,6 +27,12 @@
       "title": "Convert Ethereum Units",
       "description": "A simple Ethereum unit converter inspired by eth-converter.com",
       "mode": "view"
+    },
+    {
+      "name": "function-signature",
+      "title": "Search Function Signature",
+      "description": "Search function signature from openchain.xyz",
+      "mode": "view"
     }
   ],
   "preferences": [
@@ -41,6 +47,7 @@
   ],
   "dependencies": {
     "@raycast/api": "^1.48.3",
+    "axios": "^1.3.4",
     "bignumber.js": "^9.1.1",
     "ethers": "^5.7.2"
   },
