@@ -32,6 +32,10 @@ export default function Command() {
       title: "MaxInt256",
       value: constants.MaxInt256.toString(),
     },
+    {
+      title: "Default Mnemonic",
+      value: "test test test test test test test test test test test junk",
+    },
   ];
 
   return (
