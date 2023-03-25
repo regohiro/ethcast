@@ -1,6 +1,7 @@
 import { Action, ActionPanel, List, Toast, showToast, Cache } from "@raycast/api";
 import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
+import Fuse from "fuse.js";
 
 interface Token {
   id: string;
@@ -9,12 +10,29 @@ interface Token {
   platforms: Record<string, string>;
 }
 
-const ONE_DAY = 86_400_000;
-
 interface TokenInfoProps {
   name: string;
   platforms: Record<string, string>;
 }
+
+const explorers: Record<string, string> = {
+  ethereum: "https://etherscan.io/token/",
+  "polygon-pos": "https://polygonscan.com/token/",
+  "binance-smart-chain": "https://bscscan.com/token/",
+  solana: "https://solscan.io/token/",
+  "arbitrum-one": "https://arbiscan.io/token/",
+  avalanche: "https://snowtrace.io/token/",
+  fantom: "https://ftmscan.com/token/",
+  "optimistic-ethereum": "https://optimistic.etherscan.io/token/",
+  "harmony-shard-0": "https://explorer.harmony.one/address/",
+  tron: "https://tronscan.org/#/token20/",
+  energi: "https://explorer.energi.network/token/",
+  "huobi-token": "https://www.hecoinfo.com/en-us/token/",
+  aptos: "https://aptoscan.com/coin/",
+  astar: "https://blockscout.com/astar/token/",
+  cronos: "https://cronoscan.com/token/",
+  // I will let the contributors to add more networks 
+};
 
 function TokenInfo({ name, platforms: platformsObj }: TokenInfoProps) {
   const platforms = Object.entries(platformsObj);
@@ -25,12 +43,20 @@ function TokenInfo({ name, platforms: platformsObj }: TokenInfoProps) {
         {platforms.map(([platform, address], index) => (
           <List.Item
             key={index}
+            keywords={[address]}
             title={platform}
             accessories={[{ text: address }]}
             actions={
               <ActionPanel>
                 <Action.CopyToClipboard content={address} />
                 <Action.Paste content={address} shortcut={{ modifiers: ["cmd"], key: "enter" }} />
+                {explorers[platform] && (
+                  <Action.OpenInBrowser
+                    title="Open in Explorer"
+                    url={explorers[platform] + address}
+                    shortcut={{ modifiers: ["cmd", "opt"], key: "o" }}
+                  />
+                )}
               </ActionPanel>
             }
           />
@@ -43,8 +69,26 @@ function TokenInfo({ name, platforms: platformsObj }: TokenInfoProps) {
 export default function Command() {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
+  const [items, setItems] = useState<Token[]>([]);
 
   const cache = new Cache();
+  const fuse = new Fuse(tokens, {
+    keys: ["name", "symbol"],
+    distance: 0,
+  });
+
+  const doSearch = (text: string) => {
+    if (!text) {
+      setItems([]);
+      return;
+    }
+    const items = fuse
+      .search(text, {
+        limit: 30,
+      })
+      .map((item) => item.item);
+    setItems(items);
+  };
 
   useEffect(() => {
     (async () => {
@@ -59,6 +103,7 @@ export default function Command() {
         }
 
         // Return if last update is less than 24 hours
+        const ONE_DAY = 86_400_000;
         const lastUpdated = cache.get("ethcast.tokensUpdated");
         if (lastUpdated && Date.now() - Number(lastUpdated) < ONE_DAY) {
           return;
@@ -76,9 +121,7 @@ export default function Command() {
         );
 
         // Remove unnesseary tokens
-        const tokens = fetchedTokens
-          .filter((token) => Object.keys(token.platforms).length > 0)
-          .sort((a, b) => Object.keys(b.platforms).length - Object.keys(a.platforms).length);
+        const tokens = fetchedTokens.filter((token) => Object.keys(token.platforms).length > 0);
 
         // Set tokens
         setTokens(tokens);
@@ -104,13 +147,14 @@ export default function Command() {
     <List
       navigationTitle="Search Token Address"
       searchBarPlaceholder="Enter token name or symbol..."
+      filtering={false}
+      onSearchTextChange={doSearch}
       isLoading={loading}
     >
-      {tokens.slice(0, 100).map((token, index) => (
+      {items.map((token, index) => (
         <List.Item
           key={index}
           title={token.name}
-          keywords={[token.symbol]}
           subtitle={token.symbol.toUpperCase()}
           accessories={[
             ...Object.keys(token.platforms)
