@@ -33,12 +33,6 @@
       "title": "Search Function Signature",
       "description": "Search function signature from openchain.xyz",
       "mode": "view"
-    },
-    {
-      "name": "search-tokens",
-      "title": "Search Token Address",
-      "description": "Get token contract addresses",
-      "mode": "view"
     }
   ],
   "preferences": [
